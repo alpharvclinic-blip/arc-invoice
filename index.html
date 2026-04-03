@@ -429,7 +429,8 @@ function downloadInvoice() {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>Invoice ${invoiceId}</title>
 <style>
-  body{font-family:Arial,sans-serif;color:#000;margin:40px;font-size:12px}
+  body{font-family:Arial,sans-serif;color:#000;margin:40px;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{color:#000 !important;background:#fff !important;border-color:#000 !important}
   h1{font-size:28px;font-weight:900;text-transform:uppercase;font-style:italic;margin:0}
   table{width:100%;border-collapse:collapse;font-size:11px}
   th{text-align:left;font-size:9px;text-transform:uppercase;border-bottom:2px solid #000;padding:4px 0}
