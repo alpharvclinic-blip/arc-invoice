@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALPHA RV Clinic & Repairs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 50; }
+        .modal.active { display: flex; }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        /* PIN screen dots */
+        .dot { width:15px;height:15px;border-radius:50%;border:2px solid #334155;transition:all .15s }
+        .dot.on { background:#3b82f6;border-color:#3b82f6 }
+        .dot.er { background:#ef4444;border-color:#ef4444 }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 font-bold">
+
+<!-- ── PIN LOGIN ── -->
+<div id="pin-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f172a">
+    <div style="background:#1e293b;border:1px solid #334155;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:320px;text-align:center">
+        <div style="font-size:1.8rem;font-weight:900;color:#14b8a6;letter-spacing:-1px">Alpha RV</div>
+        <div style="font-size:1rem;font-weight:700;color:#f1f5f9;margin-top:4px">Clinic & Repairs</div>
+        <div style="font-size:.8rem;color:#64748b;margin:8px 0 1.2rem">Enter PIN to continue</div>
+        <div style="display:flex;justify-content:center;gap:14px;margin-bottom:1.2rem">
+            <div class="dot" id="pd0"></div>
+            <div class="dot" id="pd1"></div>
+            <div class="dot" id="pd2"></div>
+            <div class="dot" id="pd3"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:.75rem">
+            <button onclick="pinAdd('1')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">1</button>
+            <button onclick="pinAdd('2')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">2</button>
+            <button onclick="pinAdd('3')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">3</button>
+            <button onclick="pinAdd('4')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">4</button>
+            <button onclick="pinAdd('5')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">5</button>
+            <button onclick="pinAdd('6')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">6</button>
+            <button onclick="pinAdd('7')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">7</button>
+            <button onclick="pinAdd('8')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">8</button>
+            <button onclick="pinAdd('9')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">9</button>
+            <button onclick="pinClear()" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f59e0b;font-size:.85rem;font-weight:700;padding:.9rem;cursor:pointer">Clear</button>
+            <button onclick="pinAdd('0')" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#f1f5f9;font-size:1.3rem;font-weight:700;padding:.9rem;cursor:pointer">0</button>
+            <button onclick="pinCheck()" style="background:#1e3a5f;border:1px solid #334155;border-radius:10px;color:#22c55e;font-size:.85rem;font-weight:700;padding:.9rem;cursor:pointer">&#10003;</button>
+        </div>
+        <div style="color:#ef4444;font-size:.82rem;min-height:1.2em;margin-top:.5rem" id="pin-err"></div>
+    </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="main-app" style="display:none" class="flex flex-col h-screen">
+
+    <header class="bg-teal-600 p-4 flex justify-between items-center shadow-lg text-white shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="w-20 h-20 bg-white rounded-xl flex items-center justify-center p-1 shadow-md">
+                <img src="Aplha Rv Clinic.png" alt="Alpha RV Shield Logo" class="max-w-full max-h-full object-contain">
+            </div>
+            <div>
+                <h1 class="text-2xl font-black uppercase tracking-tighter">Alpha RV Clinic & Repairs</h1>
+                <p class="text-teal-200 text-sm font-bold">207-281-7003</p>
+            </div>
+        </div>
+        <button onclick="lockApp()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black uppercase px-4 py-2 rounded-lg">Lock</button>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <nav class="w-64 bg-slate-900 text-white p-6 flex flex-col gap-2 shadow-xl shrink-0">
+            <button onclick="showView('dashboard')" class="flex items-center gap-3 py-3 px-4 rounded-lg bg-blue-600 w-full text-left font-bold">
+                <i class="fa-solid fa-chart-line"></i> Dashboard
+            </button>
+            <button onclick="showView('orders')" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-slate-800 text-slate-300 w-full text-left font-bold">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Invoices & Orders
+            </button>
+            <button onclick="openCustomerList()" class="mt-4 pt-4 border-t border-slate-800 flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-slate-800 text-left transition-all w-full">
+                <i class="fa-solid fa-users text-slate-500"></i>
+                <div class="flex flex-col text-left">
+                    <span class="text-[9px] uppercase font-black text-slate-500">Verified Customers</span>
+                    <span id="side-stat-cust" class="text-lg font-black text-white">0</span>
+                </div>
+            </button>
+        </nav>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <section id="view-dashboard" class="view-section active">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-black text-slate-800 uppercase italic">Control Center</h2>
+                    <button onclick="openModal('orderModal')" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-xl hover:bg-blue-700">+ New Service Order</button>
+                </div>
+                <div class="bg-white p-10 rounded-2xl border-b-4 border-blue-500 shadow-md inline-block min-w-[300px]">
+                    <p class="text-blue-600 text-[10px] font-black uppercase mb-1 tracking-widest">Active Repair Log</p>
+                    <h3 id="stat-orders" class="text-6xl font-black tracking-tighter">0</h3>
+                </div>
+            </section>
+
+            <section id="view-orders" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-black text-slate-800 uppercase italic">Service Log</h2>
+                    <input type="text" id="search-bar" onkeyup="renderAll()" placeholder="Search..." class="w-64 pl-4 pr-4 py-2 border rounded-xl shadow-sm outline-none font-bold text-black">
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden text-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b">
+                            <tr><th class="p-4">Order ID</th><th class="p-4">Customer</th><th class="p-4">Vehicle</th><th class="p-4 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody id="table-orders" class="divide-y text-black font-bold"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div id="customerModal" class="modal">
+    <div class="bg-white rounded-3xl w-full max-w-6xl p-8 shadow-2xl relative h-[80vh] flex flex-col text-black font-bold">
+        <button onclick="closeModal('customerModal')" class="absolute top-6 right-6 text-slate-300 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <h2 class="text-2xl font-black uppercase mb-6 italic underline">Verified Customer Directory</h2>
+        <div class="overflow-y-auto border rounded-xl flex-1">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 font-black uppercase text-[10px] text-slate-500 sticky top-0">
+                    <tr>
+                        <th class="p-4 border-b">Name</th>
+                        <th class="p-4 border-b">Address</th>
+                        <th class="p-4 border-b">Email</th>
+                        <th class="p-4 border-b">Phone</th>
+                        <th class="p-4 border-b">RV Info</th>
+                        <th class="p-4 border-b">Order #</th>
+                        <th class="p-4 border-b text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="customer-list-content" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT / INVOICE MODAL -->
+<div id="editModal" class="modal">
+    <div id="print-area" class="bg-white rounded-3xl w-full max-w-3xl p-10 shadow-2xl max-h-[95vh] overflow-y-auto relative text-black">
+        <div class="flex justify-between items-start mb-6 border-b-4 border-black pb-4">
+            <img src="Aplha Rv Clinic.png" class="w-32 object-contain" alt="Alpha RV Shield Logo">
+            <div class="text-right">
+                <h2 class="text-3xl font-black uppercase italic leading-none">Invoice</h2>
+                <p id="edit-id-label" class="font-black text-xl leading-none">ORD-0000</p>
+                <p id="print-date-display" class="text-[10px] font-bold uppercase"></p>
+            </div>
+            <button onclick="closeModal('editModal')" class="text-slate-300 hover:text-black absolute top-4 right-4"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <input type="hidden" id="edit-index">
+        <div class="grid grid-cols-2 gap-8 mb-6 pb-6 border-b border-black">
+            <div>
+                <label class="text-[9px] font-black uppercase block">Bill To:</label>
+                <input type="text" id="edit-cust" class="w-full font-black text-lg bg-transparent border-none outline-none">
+                <p id="edit-contact-info" class="text-xs font-bold leading-tight"></p>
+            </div>
+            <div>
+                <label class="text-[9px] font-black uppercase block">RV Info:</label>
+                <input type="text" id="edit-rv" class="w-full font-bold bg-transparent border-none outline-none italic">
+            </div>
+        </div>
+
+        <div class="mb-4 border-2 border-black p-4 rounded-xl">
+            <div class="flex justify-between items-center mb-2 border-b border-black pb-2">
+                <h3 class="text-xs font-black uppercase italic">Service & Labor</h3>
+                <button onclick="addLaborRow()" class="text-[9px] border border-black px-2 py-1 font-black uppercase">+ Add Labor</button>
+            </div>
+            <table class="w-full text-xs">
+                <thead class="font-black uppercase text-[9px] border-b border-black">
+                    <tr><th class="pb-1 text-left">Description</th><th class="pb-1 w-12 text-center">Hrs</th><th class="pb-1 w-20 text-right">Rate</th><th class="pb-1 w-24 text-right">Total</th><th class="w-6"></th></tr>
+                </thead>
+                <tbody id="edit-labor-list" class="divide-y divide-black/10"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-4 border-2 border-black p-4 rounded-xl">
+            <div class="flex justify-between items-center mb-2 border-b border-black pb-2">
+                <h3 class="text-xs font-black uppercase italic">Parts & Materials</h3>
+                <button onclick="addPartRow()" class="text-[9px] border border-black px-2 py-1 font-black uppercase">+ Add Part</button>
+            </div>
+            <table class="w-full text-xs">
+                <thead class="font-black uppercase text-[9px] border-b border-black">
+                    <tr><th class="pb-1 text-left">Part Name</th><th class="pb-1 w-12 text-center">Qty</th><th class="pb-1 w-20 text-right">Price</th><th class="pb-1 w-24 text-right">Total</th><th class="w-6"></th></tr>
+                </thead>
+                <tbody id="edit-parts-list" class="divide-y divide-black/10"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-6">
+            <label class="text-[9px] font-black uppercase block mb-1">Service Notes:</label>
+            <textarea id="edit-notes" rows="6" class="w-full text-xs border border-black p-2 bg-transparent outline-none font-bold italic"></textarea>
+        </div>
+
+        <div class="flex flex-col items-end gap-2 mb-4 border-t-2 border-black pt-4 text-black">
+            <div class="w-64 space-y-1 font-black">
+                <div class="flex justify-between text-[10px] uppercase"><span>Labor Total:</span><span id="sub-labor">$0.00</span></div>
+                <div class="flex justify-between text-[10px] uppercase"><span>Parts Total:</span><span id="sub-parts">$0.00</span></div>
+                <div class="flex justify-between border-t border-black pt-2 uppercase italic">
+                    <span class="text-lg">Balance Due:</span>
+                    <span id="grand-total" class="text-2xl">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-2 border-black p-3 rounded-lg mb-6">
+            <h4 class="text-[10px] font-black uppercase mb-1">Warranty & Liability Disclaimer:</h4>
+            <p class="text-[8px] leading-tight font-bold italic text-black">All labor is warrantied for 30 days from date of service. Parts are subject to original manufacturer warranties only. Alpha RV Clinic & Repairs is not responsible for secondary damage resulting from component failure or pre-existing conditions. Payment is due upon completion of services.</p>
+        </div>
+
+        <footer class="border-t-4 border-black pt-4 mt-4">
+            <div class="flex justify-between items-end">
+                <div class="space-y-1">
+                    <p class="text-[14px] font-black">Call or Text: 207-281-7003</p>
+                    <p class="text-[12px] font-bold">www.alpharvclinic.com</p>
+                    <p class="text-[11px] font-black text-green-700">RV Technical Institute Certified</p>
+                </div>
+                <p class="text-[10px] font-bold italic uppercase">York County & Cumberland County, Maine</p>
+            </div>
+        </footer>
+
+        <div class="grid grid-cols-2 gap-8 pt-6">
+            <button onclick="updateOrder()" class="py-4 border-2 border-black font-black uppercase text-xs hover:bg-slate-50">Save Record</button>
+            <button onclick="downloadInvoice()" class="py-4 bg-black text-white font-black uppercase text-xs">&#x1F4E5; Download Invoice</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW ORDER MODAL -->
+<div id="orderModal" class="modal">
+    <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+        <h2 class="text-2xl font-black mb-6 uppercase italic">New Repair Job</h2>
+        <div class="space-y-4">
+            <input type="text" id="in-cust" placeholder="Customer Name" class="w-full p-4 border rounded-xl bg-slate-50 outline-none font-bold text-black">
+            <input type="text" id="in-address" placeholder="Physical Address" class="w-full p-4 border rounded-xl bg-slate-50 outline-none font-bold text-black">
+            <input type="email" id="in-email" placeholder="Email Address" class="w-full p-4 border rounded-xl bg-slate-50 outline-none font-bold text-black">
+            <input type="tel" id="in-phone" placeholder="Phone Number" class="w-full p-4 border rounded-xl bg-slate-50 outline-none font-bold text-black">
+            <input type="text" id="in-rv" placeholder="RV Model / Year" class="w-full p-4 border rounded-xl bg-slate-50 outline-none font-bold text-black">
+            <button onclick="addOrder()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-xs shadow-lg mt-2">Initialize Service Order</button>
+            <button onclick="closeModal('orderModal')" class="w-full py-2 text-slate-400 font-bold uppercase text-[10px]">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── PIN ────────────────────────────────────────────────
+const CORRECT_PIN = '6569';
+let pin = '';
+function pinAdd(d) {
+    if (pin.length >= 4) return;
+    pin += d;
+    updatePinDots();
+    if (pin.length === 4) setTimeout(pinCheck, 150);
+}
+function pinClear() {
+    pin = '';
+    updatePinDots(false);
+    document.getElementById('pin-err').textContent = '';
+}
+function updatePinDots(err) {
+    for (let i = 0; i < 4; i++) {
+        const d = document.getElementById('pd' + i);
+        d.className = 'dot';
+        if (err) d.classList.add('er');
+        else if (i < pin.length) d.classList.add('on');
+    }
+}
+function pinCheck() {
+    if (pin === CORRECT_PIN) {
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        renderAll();
+        document.getElementById('stat-orders').innerText = orders.length;
+        document.getElementById('side-stat-cust').innerText = Object.keys(verifiedDirectory).length;
+    } else {
+        updatePinDots(true);
+        document.getElementById('pin-err').textContent = 'Incorrect PIN';
+        setTimeout(pinClear, 1200);
+    }
+}
+function lockApp() {
+    pin = '';
+    updatePinDots();
+    document.getElementById('pin-err').textContent = '';
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+}
+
+// ── APP LOGIC ─────────────────────────────────────────
+let orders = JSON.parse(localStorage.getItem('rv_hub_v60')) || [];
+let verifiedDirectory = JSON.parse(localStorage.getItem('rv_clients_v60')) || {};
+let tempParts = [];
+let tempLabor = [];
+
+function showView(v) {
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + v).classList.add('active');
+    renderAll();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function addOrder() {
+    const name = document.getElementById('in-cust').value;
+    if (!name) return;
+    const order = {
+        id: 'INV-' + Math.floor(1000 + Math.random() * 9000),
+        cust: name,
+        address: document.getElementById('in-address').value || 'N/A',
+        email: document.getElementById('in-email').value || 'N/A',
+        phone: document.getElementById('in-phone').value || 'N/A',
+        rv: document.getElementById('in-rv').value || 'N/A',
+        labor: [{ desc: 'Service Call', hours: 1, rate: 75.00 }],
+        parts: [],
+        notes: ''
+    };
+    orders.unshift(order);
+    save();
+    closeModal('orderModal');
+    ['in-cust','in-address','in-email','in-phone','in-rv'].forEach(id => document.getElementById(id).value = '');
+}
+
+function openEdit(idx) {
+    const o = orders[idx];
+    document.getElementById('edit-index').value = idx;
+    document.getElementById('edit-id-label').innerText = o.id;
+    document.getElementById('edit-cust').value = o.cust;
+    document.getElementById('edit-rv').value = o.rv;
+    document.getElementById('edit-notes').value = o.notes;
+    document.getElementById('edit-contact-info').innerText = o.phone + ' | ' + o.address;
+    document.getElementById('print-date-display').innerText = 'DATE: ' + new Date().toLocaleDateString();
+    tempParts = JSON.parse(JSON.stringify(o.parts || []));
+    tempLabor = JSON.parse(JSON.stringify(o.labor || []));
+    renderInvoice();
+    openModal('editModal');
+}
+
+function addLaborRow() { tempLabor.push({ desc: '', hours: 1, rate: 0 }); renderInvoice(); }
+function addPartRow() { tempParts.push({ name: '', qty: 1, price: 0 }); renderInvoice(); }
+
+function calculate() {
+    let lSum = 0, pSum = 0;
+    tempLabor.forEach(l => { lSum += (parseFloat(l.hours) || 0) * (parseFloat(l.rate) || 0); });
+    tempParts.forEach(p => { pSum += (parseFloat(p.qty) || 0) * (parseFloat(p.price) || 0); });
+    document.getElementById('sub-labor').innerText = '$' + lSum.toFixed(2);
+    document.getElementById('sub-parts').innerText = '$' + pSum.toFixed(2);
+    document.getElementById('grand-total').innerText = '$' + (lSum + pSum).toFixed(2);
+}
+
+function syncToNotes() {
+    let noteContent = '';
+    tempLabor.forEach(l => {
+        if (l.desc) {
+            const total = (parseFloat(l.hours) || 0) * (parseFloat(l.rate) || 0);
+            noteContent += l.desc + ': $' + total.toFixed(2) + ' (' + l.hours + ' hrs)\n';
+        }
+    });
+    tempParts.forEach(p => {
+        if (p.name) {
+            const total = (parseFloat(p.qty) || 0) * (parseFloat(p.price) || 0);
+            noteContent += p.name + ': $' + total.toFixed(2) + ' (Qty: ' + p.qty + ')\n';
+        }
+    });
+    document.getElementById('edit-notes').value = noteContent.trim();
+}
+
+function renderInvoice() {
+    document.getElementById('edit-labor-list').innerHTML = tempLabor.map((l, i) => `
+        <tr>
+            <td><input type="text" value="${l.desc}" oninput="tempLabor[${i}].desc=this.value;syncToNotes();" class="w-full bg-transparent outline-none font-bold"></td>
+            <td><input type="number" value="${l.hours}" oninput="tempLabor[${i}].hours=this.value;calculate();renderInvoice();syncToNotes();" class="text-center w-full bg-transparent outline-none"></td>
+            <td><input type="number" value="${l.rate}" oninput="tempLabor[${i}].rate=this.value;calculate();renderInvoice();syncToNotes();" class="text-right w-full bg-transparent outline-none"></td>
+            <td class="text-right font-black">$${((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0)).toFixed(2)}</td>
+            <td class="text-right"><button onclick="tempLabor.splice(${i},1);renderInvoice();syncToNotes();" class="text-red-400 font-black">X</button></td>
+        </tr>`).join('');
+
+    document.getElementById('edit-parts-list').innerHTML = tempParts.map((p, i) => `
+        <tr>
+            <td><input type="text" value="${p.name}" oninput="tempParts[${i}].name=this.value;syncToNotes();" class="w-full bg-transparent outline-none font-bold"></td>
+            <td><input type="number" value="${p.qty}" oninput="tempParts[${i}].qty=this.value;calculate();renderInvoice();syncToNotes();" class="text-center w-full bg-transparent outline-none"></td>
+            <td><input type="number" value="${p.price}" oninput="tempParts[${i}].price=this.value;calculate();renderInvoice();syncToNotes();" class="text-right w-full bg-transparent outline-none"></td>
+            <td class="text-right font-black">$${((parseFloat(p.qty)||0)*(parseFloat(p.price)||0)).toFixed(2)}</td>
+            <td class="text-right"><button onclick="tempParts.splice(${i},1);renderInvoice();syncToNotes();" class="text-red-400 font-black">X</button></td>
+        </tr>`).join('');
+    calculate();
+}
+
+// ── DOWNLOAD AS PDF (to downloads, not printer) ───────
+function downloadInvoice() {
+    const idx = document.getElementById('edit-index').value;
+    const o = orders[idx];
+
+    // Register customer as verified
+    const key = (o.cust + (o.phone || '')).toLowerCase().trim();
+    verifiedDirectory[key] = { cust: o.cust, address: o.address, email: o.email, phone: o.phone, rv: o.rv, lastOrder: o.id };
+    save();
+
+    // Build a clean printable HTML document and trigger download via blob
+    const lSum = tempLabor.reduce((s,l) => s + (parseFloat(l.hours)||0)*(parseFloat(l.rate)||0), 0);
+    const pSum = tempParts.reduce((s,p) => s + (parseFloat(p.qty)||0)*(parseFloat(p.price)||0), 0);
+    const grand = lSum + pSum;
+
+    const laborRows = tempLabor.map(l =>
+        '<tr><td style="padding:4px 0;border-bottom:1px solid #ddd">' + l.desc + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:center">' + l.hours + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:right">$' + parseFloat(l.rate).toFixed(2) + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:right;font-weight:900">$' + ((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0)).toFixed(2) + '</td></tr>'
+    ).join('');
+
+    const partRows = tempParts.map(p =>
+        '<tr><td style="padding:4px 0;border-bottom:1px solid #ddd">' + p.name + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:center">' + p.qty + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:right">$' + parseFloat(p.price).toFixed(2) + '</td>' +
+        '<td style="padding:4px 0;border-bottom:1px solid #ddd;text-align:right;font-weight:900">$' + ((parseFloat(p.qty)||0)*(parseFloat(p.price)||0)).toFixed(2) + '</td></tr>'
+    ).join('');
+
+    const custName = document.getElementById('edit-cust').value;
+    const rvInfo = document.getElementById('edit-rv').value;
+    const notes = document.getElementById('edit-notes').value;
+    const contactInfo = document.getElementById('edit-contact-info').innerText;
+    const invoiceId = o.id;
+    const dateStr = new Date().toLocaleDateString();
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Invoice ${invoiceId}</title>
+<style>
+  body{font-family:Arial,sans-serif;color:#000;margin:40px;font-size:12px}
+  h1{font-size:28px;font-weight:900;text-transform:uppercase;font-style:italic;margin:0}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;border-bottom:2px solid #000;padding:4px 0}
+  .section{border:2px solid #000;padding:12px;border-radius:8px;margin-bottom:12px}
+  .section-title{font-size:10px;font-weight:900;text-transform:uppercase;font-style:italic;border-bottom:1px solid #000;padding-bottom:6px;margin-bottom:8px}
+  .totals{width:260px;margin-left:auto}
+  .tot-row{display:flex;justify-content:space-between;font-size:10px;font-weight:900;text-transform:uppercase;padding:2px 0}
+  .grand{border-top:2px solid #000;padding-top:6px;margin-top:4px;font-size:20px;font-style:italic}
+  footer{border-top:4px solid #000;padding-top:12px;margin-top:20px;display:flex;justify-content:space-between}
+  .disclaimer{border:2px solid #000;padding:10px;border-radius:6px;margin-bottom:12px}
+</style>
+</head><body>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:4px solid #000;padding-bottom:12px;margin-bottom:16px">
+  <div style="font-size:14px;font-weight:900;color:#0d9488">ALPHA RV CLINIC &amp; REPAIRS</div>
+  <div style="text-align:right">
+    <h1>Invoice</h1>
+    <p style="font-size:16px;font-weight:900;margin:0">${invoiceId}</p>
+    <p style="font-size:9px;font-weight:700;text-transform:uppercase;margin:0">Date: ${dateStr}</p>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #000">
+  <div>
+    <p style="font-size:9px;font-weight:900;text-transform:uppercase;margin:0 0 4px">Bill To:</p>
+    <p style="font-size:16px;font-weight:900;margin:0">${custName}</p>
+    <p style="font-size:11px;font-weight:700;margin:4px 0 0">${contactInfo}</p>
+  </div>
+  <div>
+    <p style="font-size:9px;font-weight:900;text-transform:uppercase;margin:0 0 4px">RV Info:</p>
+    <p style="font-size:12px;font-weight:700;font-style:italic;margin:0">${rvInfo}</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-title">Service &amp; Labor</div>
+  <table><thead><tr><th>Description</th><th style="text-align:center">Hrs</th><th style="text-align:right">Rate</th><th style="text-align:right">Total</th></tr></thead>
+  <tbody>${laborRows || '<tr><td colspan="4" style="padding:8px 0;color:#888">No labor entries</td></tr>'}</tbody></table>
+</div>
+<div class="section">
+  <div class="section-title">Parts &amp; Materials</div>
+  <table><thead><tr><th>Part Name</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead>
+  <tbody>${partRows || '<tr><td colspan="4" style="padding:8px 0;color:#888">No parts entries</td></tr>'}</tbody></table>
+</div>
+${notes ? '<div style="margin-bottom:12px"><p style="font-size:9px;font-weight:900;text-transform:uppercase;margin:0 0 4px">Service Notes:</p><p style="font-size:11px;font-style:italic;font-weight:700;white-space:pre-wrap;margin:0">' + notes + '</p></div>' : ''}
+<div class="totals">
+  <div class="tot-row"><span>Labor Total:</span><span>$${lSum.toFixed(2)}</span></div>
+  <div class="tot-row"><span>Parts Total:</span><span>$${pSum.toFixed(2)}</span></div>
+  <div class="tot-row grand"><span>Balance Due:</span><span style="font-size:24px">$${grand.toFixed(2)}</span></div>
+</div>
+<div class="disclaimer" style="margin-top:16px">
+  <p style="font-size:9px;font-weight:900;text-transform:uppercase;margin:0 0 4px">Warranty &amp; Liability Disclaimer:</p>
+  <p style="font-size:8px;font-style:italic;font-weight:700;margin:0">All labor is warrantied for 30 days from date of service. Parts are subject to original manufacturer warranties only. Alpha RV Clinic &amp; Repairs is not responsible for secondary damage resulting from component failure or pre-existing conditions. Payment is due upon completion of services.</p>
+</div>
+<footer>
+  <div>
+    <p style="font-size:14px;font-weight:900;margin:0">Call or Text: 207-281-7003</p>
+    <p style="font-size:12px;font-weight:700;margin:2px 0">www.alpharvclinic.com</p>
+    <p style="font-size:11px;font-weight:900;color:#16a34a;margin:0">RV Technical Institute Certified</p>
+  </div>
+  <p style="font-size:10px;font-weight:700;font-style:italic;text-transform:uppercase;align-self:flex-end">York County &amp; Cumberland County, Maine</p>
+</footer>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Invoice-' + invoiceId + '-' + custName.replace(/\s+/g, '-') + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function openCustomerList() {
+    const list = Object.entries(verifiedDirectory).sort((a, b) => a[1].cust.localeCompare(b[1].cust));
+    document.getElementById('customer-list-content').innerHTML = list.map(([key, c]) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-4 uppercase text-xs">${c.cust}</td>
+            <td class="p-4 text-[10px]">${c.address}</td>
+            <td class="p-4 text-[10px]">${c.email}</td>
+            <td class="p-4 text-[10px]">${c.phone}</td>
+            <td class="p-4 italic text-[10px]">${c.rv}</td>
+            <td class="p-4 text-blue-600 underline cursor-pointer font-black text-xs" onclick="findOrder('${c.lastOrder}')">${c.lastOrder}</td>
+            <td class="p-4 text-right"><button onclick="delete verifiedDirectory['${key}'];save();openCustomerList();" class="text-red-300"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>`).join('');
+    openModal('customerModal');
+}
+
+function findOrder(id) {
+    const idx = orders.findIndex(o => o.id === id);
+    if (idx !== -1) { closeModal('customerModal'); openEdit(idx); }
+}
+
+function updateOrder() {
+    const idx = document.getElementById('edit-index').value;
+    orders[idx].cust = document.getElementById('edit-cust').value;
+    orders[idx].rv = document.getElementById('edit-rv').value;
+    orders[idx].notes = document.getElementById('edit-notes').value;
+    orders[idx].parts = [...tempParts];
+    orders[idx].labor = [...tempLabor];
+    save();
+    closeModal('editModal');
+}
+
+function save() {
+    localStorage.setItem('rv_hub_v60', JSON.stringify(orders));
+    localStorage.setItem('rv_clients_v60', JSON.stringify(verifiedDirectory));
+    renderAll();
+    document.getElementById('stat-orders').innerText = orders.length;
+    document.getElementById('side-stat-cust').innerText = Object.keys(verifiedDirectory).length;
+}
+
+function renderAll() {
+    const q = (document.getElementById('search-bar') ? document.getElementById('search-bar').value : '').toLowerCase();
+    const filtered = orders.filter(o => !q || o.cust.toLowerCase().includes(q) || o.id.toLowerCase().includes(q) || o.rv.toLowerCase().includes(q));
+    document.getElementById('table-orders').innerHTML = filtered.map(o => `
+        <tr class="font-bold border-b text-black">
+            <td onclick="openEdit(${orders.indexOf(o)})" class="p-4 text-blue-600 underline cursor-pointer font-black">${o.id}</td>
+            <td class="p-4 uppercase">${o.cust}</td>
+            <td class="p-4 italic">${o.rv}</td>
+            <td class="p-4 text-right">
+                <button onclick="if(confirm('Delete?')){orders.splice(${orders.indexOf(o)},1);save();}" class="text-red-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>`).join('');
+}
+</script>
+</body>
+</html>
