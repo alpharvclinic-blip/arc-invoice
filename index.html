@@ -373,8 +373,8 @@ function renderInvoice() {
     document.getElementById('edit-labor-list').innerHTML = tempLabor.map((l, i) => `
         <tr>
             <td><input type="text" value="${l.desc}" oninput="tempLabor[${i}].desc=this.value;syncToNotes();" class="w-full bg-transparent outline-none font-bold"></td>
-            <td><input type="number" value="${l.hours}" oninput="tempLabor[${i}].hours=this.value;calculate();renderInvoice();syncToNotes();" class="text-center w-full bg-transparent outline-none" style="min-width:60px"></td>
-            <td><input type="number" value="${l.rate}" oninput="tempLabor[${i}].rate=this.value;calculate();renderInvoice();syncToNotes();" class="text-right w-full bg-transparent outline-none" style="min-width:75px"></td>
+            <td><input type="number" value="${l.hours}" oninput="tempLabor[${i}].hours=this.value;calculate();" class="text-center w-full bg-transparent outline-none" style="min-width:60px"></td>
+            <td><input type="number" value="${l.rate}" oninput="tempLabor[${i}].rate=this.value;calculate();" class="text-right w-full bg-transparent outline-none" style="min-width:75px"></td>
             <td class="text-right font-black">$${((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0)).toFixed(2)}</td>
             <td class="text-right"><button onclick="tempLabor.splice(${i},1);renderInvoice();syncToNotes();" class="text-red-400 font-black">X</button></td>
         </tr>`).join('');
@@ -382,8 +382,8 @@ function renderInvoice() {
     document.getElementById('edit-parts-list').innerHTML = tempParts.map((p, i) => `
         <tr>
             <td><input type="text" value="${p.name}" oninput="tempParts[${i}].name=this.value;syncToNotes();" class="w-full bg-transparent outline-none font-bold"></td>
-            <td><input type="number" value="${p.qty}" oninput="tempParts[${i}].qty=this.value;calculate();renderInvoice();syncToNotes();" class="text-center w-full bg-transparent outline-none" style="min-width:60px"></td>
-            <td><input type="number" value="${p.price}" oninput="tempParts[${i}].price=this.value;calculate();renderInvoice();syncToNotes();" class="text-right w-full bg-transparent outline-none" style="min-width:75px"></td>
+            <td><input type="number" value="${p.qty}" oninput="tempParts[${i}].qty=this.value;calculate();" class="text-center w-full bg-transparent outline-none" style="min-width:60px"></td>
+            <td><input type="number" value="${p.price}" oninput="tempParts[${i}].price=this.value;calculate();" class="text-right w-full bg-transparent outline-none" style="min-width:75px"></td>
             <td class="text-right font-black">$${((parseFloat(p.qty)||0)*(parseFloat(p.price)||0)).toFixed(2)}</td>
             <td class="text-right"><button onclick="tempParts.splice(${i},1);renderInvoice();syncToNotes();" class="text-red-400 font-black">X</button></td>
         </tr>`).join('');
