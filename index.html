@@ -522,7 +522,7 @@ ${notes ? '<div style="margin-bottom:12px"><p style="font-size:9px;font-weight:9
       try { doc.addImage(INVOICE_LOGO, 'PNG', margin, y, 18, 18); } catch(e) {}
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(13, 148, 136);
+      doc.setTextColor(0, 0, 0);
       doc.text('ALPHA RV CLINIC', margin + 22, y + 8);
       doc.text('& REPAIRS', margin + 22, y + 14);
       
@@ -661,7 +661,7 @@ ${notes ? '<div style="margin-bottom:12px"><p style="font-size:9px;font-weight:9
       doc.text('www.alpharvclinic.com', margin, y);
       y += 5;
       doc.setFontSize(9);
-      doc.setTextColor(22, 163, 74);
+      doc.setTextColor(0, 0, 0);
       doc.text('RV Technical Institute Certified', margin, y);
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(8);
